@@ -15,10 +15,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Only seed if no users exist
-        if (User::count() > 0) {
-            return;
-        }
+        User::create([
+            'nama_lengkap' => 'Opal Owner',
+            'username' => 'opalopal09',
+            'password' => 'opal123ya',
+            'role' => 'admin',
+            'status_aktif' => 'aktif'
+        ]);
 
         User::create([
             'nama_lengkap' => 'Admin Parkir',

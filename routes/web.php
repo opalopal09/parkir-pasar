@@ -21,6 +21,16 @@ Route::get('/login', [AuthController::class, 'index'])->name('login');
 Route::post('/login', [AuthController::class, 'loginProses'])->name('login.proses');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
+Route::get('/force-seed', function () {
+    try {
+        \Artisan::call('migrate', ['--force' => true]);
+        \Artisan::call('db:seed', ['--force' => true]);
+        return "Berhasil! Database telah di-migrate dan di-seed. Silakan login menggunakan username admin, petugas, atau owner.";
+    } catch (\Exception $e) {
+        return "Error saat seeding: " . $e->getMessage();
+    }
+});
+
 
 // =======================
 // AUTH AREA
