@@ -1,0 +1,19 @@
+[providers]
+php = true
+node = true
+
+[phases.setup]
+nixPkgs = ["...", "php82", "nodejs_20"]
+
+[phases.build]
+cmds = [
+    "npm install",
+    "npm run build",
+    "composer install --no-dev --optimize-autoloader",
+    "php artisan config:cache || true",
+    "php artisan route:cache || true",
+    "php artisan view:cache || true",
+]
+
+[start]
+cmd = "php artisan migrate --force || true && php artisan db:seed --force || true && php artisan serve --host=0.0.0.0 --port=$PORT"
