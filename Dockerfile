@@ -9,12 +9,15 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     zip \
     unzip \
-    nodejs \
-    npm \
+    dos2unix \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd \
     && a2enmod rewrite \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Node.js 20 (needed for Vite)
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -31,6 +34,9 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interactio
 # Copy the rest of the application
 COPY . .
 
+# Fix line endings for shell scripts (Windows CRLF -> Unix LF)
+RUN dos2unix /var/www/html/docker-entrypoint.sh 2>/dev/null || sed -i 's/\r$//' /var/www/html/docker-entrypoint.sh
+
 # Run composer scripts after copying all files
 RUN composer dump-autoload --optimize
 
@@ -46,14 +52,10 @@ RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Create .env from .env.example if not exists, generate key, and run migrations
-RUN cp .env.example .env && php artisan key:generate
+# Make entrypoint executable
+RUN chmod +x /var/www/html/docker-entrypoint.sh
 
-# Expose port (Railway uses PORT env var)
+# Expose port
 EXPOSE 80
 
-# Start script
-COPY docker-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-
-CMD ["docker-entrypoint.sh"]
+CMD ["/var/www/html/docker-entrypoint.sh"]
