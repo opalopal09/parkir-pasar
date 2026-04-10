@@ -10,6 +10,9 @@ fi
 # Run migrations
 php artisan migrate --force 2>/dev/null || true
 
+# Run seeders (will only seed if no users exist)
+php artisan db:seed --force 2>/dev/null || true
+
 # Cache config and routes for performance
 php artisan config:cache 2>/dev/null || true
 php artisan route:cache 2>/dev/null || true
