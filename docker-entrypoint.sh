@@ -1,22 +1,40 @@
 #!/bin/bash
 set -e
 
+echo "Starting Railway Deployment Script..."
+
 # Use PORT from Railway or default to 80
-if [ -n "$PORT" ]; then
-    sed -i "s/Listen 80/Listen $PORT/" /etc/apache2/ports.conf
-    sed -i "s/:80/:$PORT/" /etc/apache2/sites-available/000-default.conf
-fi
+PORT=${PORT:-80}
+echo "Configuring Apache to listen on PORT: $PORT"
 
-# Run migrations
-php artisan migrate --force 2>/dev/null || true
+# Overwrite ports configuration
+cat > /etc/apache2/ports.conf <<APACHE
+Listen $PORT
+APACHE
 
-# Run seeders (will only seed if no users exist)
-php artisan db:seed --force 2>/dev/null || true
+# Overwrite virtual host configuration
+cat > /etc/apache2/sites-available/000-default.conf <<APACHE
+<VirtualHost *:$PORT>
+    DocumentRoot /var/www/html/public
+    <Directory /var/www/html/public>
+        AllowOverride All
+        Require all granted
+    </Directory>
+    ErrorLog \${APACHE_LOG_DIR}/error.log
+    CustomLog \${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+APACHE
 
-# Cache config and routes for performance
+echo "Caching configurations..."
 php artisan config:cache 2>/dev/null || true
 php artisan route:cache 2>/dev/null || true
 php artisan view:cache 2>/dev/null || true
 
-# Start Apache
-apache2-foreground
+echo "Running migrations..."
+php artisan migrate --force 2>/dev/null || true
+
+echo "Running seeders..."
+php artisan db:seed --force 2>/dev/null || true
+
+echo "Starting Apache..."
+exec apache2-foreground
