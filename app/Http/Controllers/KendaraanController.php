@@ -154,12 +154,8 @@ class KendaraanController extends Controller
         // Calculate parking duration
         $waktuMasuk = Carbon::parse($kendaraan->created_at);
         $waktuKeluar = Carbon::now();
-        $durasiJam = $waktuMasuk->diffInHours($waktuKeluar);
-        
-        // Round up if there are remaining minutes
-        if ($waktuMasuk->diffInMinutes($waktuKeluar) % 60 > 0) {
-            $durasiJam += 1;
-        }
+        $durasiMenit = $waktuMasuk->diffInMinutes($waktuKeluar);
+        $durasiJam = (int) ceil($durasiMenit / 60);
         
         // Minimum 1 hour
         if ($durasiJam < 1) {
@@ -215,12 +211,10 @@ class KendaraanController extends Controller
         // Calculate duration for display
         $waktuMasuk = Carbon::parse($kendaraan->created_at);
         $waktuKeluar = Carbon::parse($kendaraan->waktu_keluar);
-        $durasiJam = $waktuMasuk->diffInHours($waktuKeluar);
+        $durasiMenit = $waktuMasuk->diffInMinutes($waktuKeluar);
+        $durasiJam = (int) ceil($durasiMenit / 60);
         
-        if ($waktuMasuk->diffInMinutes($waktuKeluar) % 60 > 0) {
-            $durasiJam += 1;
-        }
-        
+        // Minimum 1 jam
         if ($durasiJam < 1) {
             $durasiJam = 1;
         }
