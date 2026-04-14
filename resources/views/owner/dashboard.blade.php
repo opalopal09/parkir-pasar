@@ -82,5 +82,54 @@
             </div>
         </div>
     </div>
+
+    <!-- Tabel Transaksi Terbaru -->
+    <div class="card shadow-sm mt-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <strong>📋 Transaksi Terbaru</strong>
+            <a href="{{ url('/kendaraan') }}" class="btn btn-sm btn-outline-primary">Lihat Semua</a>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>No</th>
+                            <th>Plat Nomor</th>
+                            <th>Jenis</th>
+                            <th>Pemilik</th>
+                            <th>Waktu Masuk</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php
+                            $transaksiTerbaru = \App\Models\Kendaraan::orderBy('created_at', 'desc')->take(10)->get();
+                        @endphp
+                        @forelse($transaksiTerbaru as $t)
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
+                            <td><span class="badge bg-dark">{{ $t->plat_nomor }}</span></td>
+                            <td>{{ $t->jenis }}</td>
+                            <td>{{ $t->pemilik }}</td>
+                            <td>{{ $t->created_at->format('d/m/Y H:i') }}</td>
+                            <td>
+                                @if($t->status == 'masuk')
+                                    <span class="badge bg-success">Masuk</span>
+                                @else
+                                    <span class="badge bg-secondary">Keluar</span>
+                                @endif
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-3">Belum ada transaksi.</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection

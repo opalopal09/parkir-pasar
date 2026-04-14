@@ -4,7 +4,9 @@
 <div class="container">
 <h4>Data Kendaraan</h4>
 
+@if(auth()->user()->role != 'owner')
 <a href="/kendaraan/create" class="btn btn-primary mb-2">Tambah Kendaraan</a>
+@endif
 
 @if(session('success'))
 <div class="alert alert-success">{{ session('success') }}</div>
@@ -23,7 +25,9 @@
     <th>Pemilik</th>
     <th>Status</th>
     <th>Waktu Masuk</th>
+    @if(auth()->user()->role != 'owner')
     <th>Aksi</th>
+    @endif
 </tr>
 @foreach($kendaraans as $k)
 <tr>
@@ -40,6 +44,7 @@
         @endif
     </td>
     <td>{{ $k->created_at->format('d/m/Y H:i') }}</td>
+    @if(auth()->user()->role != 'owner')
     <td>
         @if($k->status == 'masuk')
             <a href="/kendaraan/{{ $k->id }}/exit" class="btn btn-info btn-sm">Keluar</a>
@@ -54,6 +59,7 @@
             <button class="btn btn-danger btn-sm" onclick="return confirm('Hapus data?')">Hapus</button>
         </form>
     </td>
+    @endif
 </tr>
 @endforeach
 </table>

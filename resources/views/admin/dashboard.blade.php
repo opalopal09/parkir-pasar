@@ -106,4 +106,53 @@
         background: #fff1f2 !important;
     }
 </style>
+
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card shadow-sm border-0 p-4">
+            <h5 class="fw-bold mb-3">Transaksi Terbaru</h5>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>No</th>
+                            <th>Plat Nomor</th>
+                            <th>Jenis</th>
+                            <th>Waktu Masuk</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php
+                            $kendaraans = \App\Models\Kendaraan::orderBy('created_at', 'desc')->take(5)->get();
+                        @endphp
+                        @forelse($kendaraans as $k)
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
+                            <td><span class="badge bg-secondary">{{ $k->plat_nomor }}</span></td>
+                            <td>{{ $k->jenis }}</td>
+                            <td>{{ $k->created_at->format('d/m/Y H:i') }}</td>
+                            <td>
+                                @if($k->status == 'masuk')
+                                    <span class="badge bg-success">Masuk</span>
+                                @else
+                                    <span class="badge bg-secondary">Keluar</span>
+                                @endif
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">Belum ada transaksi.</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-2 text-end">
+                <a href="/kendaraan" class="btn btn-sm btn-outline-primary">Lihat Semua Data</a>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
